@@ -2,21 +2,23 @@
 #include "descriptor_tables.h"
 
 // Global Descriptor Table (GDT) and Interrupt Descriptor Table (IDT) definitions.
-gdt_entry_t gdt_entries[5];      // GDT entries
-gdt_ptr_t gdt_ptr;              // GDT pointer structure
+gdt_entry_t gdt_entries[5];      // Array to hold 5 GDT entries
+gdt_ptr_t gdt_ptr;               // Pointer to the GDT structure
 
-idt_entry_t idt_entries[256];    // IDT entries
-idt_ptr_t idt_ptr;              // IDT pointer structure
-interrupt_handler_t interrupt_handlers[256]; // Array of interrupt handlers
+idt_entry_t idt_entries[256];    // Array to hold 256 IDT entries
+idt_ptr_t idt_ptr;               // Pointer to the IDT structure
+interrupt_handler_t interrupt_handlers[256]; // Array of interrupt handler functions
 
 /**
  * @brief Set a GDT entry with specified parameters.
  * 
+ * This function sets a specific entry in the Global Descriptor Table (GDT) with the provided base, limit, access, and granularity flags.
+ *
  * @param num    Entry number in the GDT
  * @param base   Base address for the segment
  * @param limit  Segment limit
- * @param access Access flags
- * @param gran   Granularity flags
+ * @param access Access flags (e.g., read/write, code/data segment)
+ * @param gran   Granularity flags (e.g., 4KB page, 32-bit mode)
  */
 static void gdt_set_gate(int32_t num, uint32_t base, uint32_t limit, uint8_t access, uint8_t gran) {
     gdt_entries[num].base_low    = (base & 0xFFFF);
@@ -31,6 +33,9 @@ static void gdt_set_gate(int32_t num, uint32_t base, uint32_t limit, uint8_t acc
 
 /**
  * @brief Initialize the Global Descriptor Table (GDT).
+ *
+ * This function sets up the GDT by defining segments for code, data, and user space,
+ * and loading it into the CPU.
  */
 void init_gdt() {
     // Set GDT pointer size and base
@@ -51,10 +56,12 @@ void init_gdt() {
 /**
  * @brief Set an entry in the Interrupt Descriptor Table (IDT).
  * 
+ * This function sets a specific entry in the IDT for an interrupt service routine (ISR).
+ *
  * @param num   Entry number in the IDT
  * @param base  Base address of the ISR
  * @param sel   Kernel segment selector
- * @param flags Flags for the IDT entry
+ * @param flags Flags for the IDT entry (e.g., privilege level)
  */
 static void idt_set_gate(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags) {
     idt_entries[num].base_lo = base & 0xFFFF;
@@ -67,6 +74,9 @@ static void idt_set_gate(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags
 
 /**
  * @brief Initialize the Interrupt Descriptor Table (IDT).
+ *
+ * This function sets up the IDT by defining interrupt service routines (ISRs) for each interrupt number
+ * and configuring the Programmable Interrupt Controller (PIC).
  */
 void init_idt() {
     // Zero all interrupt handlers initially.
@@ -77,71 +87,29 @@ void init_idt() {
     idt_ptr.base  = (uint32_t)&idt_entries;
 
     // Zero the IDT to start with.
-    memset((uint8_t*)&idt_entries, 0, sizeof(idt_entry_t) * 255);
+    memset((uint8_t*)&idt_entries, 0, sizeof(idt_entry_t) * 256);
 
-    // Remap the IRQ table.
-    outb(0x20, 0x11);
-    outb(0xA0, 0x11);
-    outb(0x21, 0x20);
-    outb(0xA1, 0x28);
-    outb(0x21, 0x04);
-    outb(0xA1, 0x02);
-    outb(0x21, 0x01);
-    outb(0xA1, 0x01);
-    outb(0x21, 0x0);
-    outb(0xA1, 0x0);
+    // Remap the IRQ table for the PICs
+    outb(0x20, 0x11);  // Initialize master PIC
+    outb(0xA0, 0x11);  // Initialize slave PIC
+    outb(0x21, 0x20);  // IRQ offset for master PIC
+    outb(0xA1, 0x28);  // IRQ offset for slave PIC
+    outb(0x21, 0x04);  // Master PIC uses slave PIC
+    outb(0xA1, 0x02);  // Slave PIC is on IRQ2
+    outb(0x21, 0x01);  // Enable 8086/88 mode
+    outb(0xA1, 0x01);  // Enable 8086/88 mode for slave
+    outb(0x21, 0x0);   // Unmask IRQs on master PIC
+    outb(0xA1, 0x0);   // Unmask IRQs on slave PIC
 
-    // Set each gate in the IDT.
-    idt_set_gate(0, (uint32_t)isr0, 0x08, 0x8E);
-    idt_set_gate(1, (uint32_t)isr1, 0x08, 0x8E);
-    idt_set_gate(2, (uint32_t)isr2, 0x08, 0x8E);
-    idt_set_gate(3, (uint32_t)isr3, 0x08, 0x8E);
-    idt_set_gate(4, (uint32_t)isr4, 0x08, 0x8E);
-    idt_set_gate(5, (uint32_t)isr5, 0x08, 0x8E);
-    idt_set_gate(6, (uint32_t)isr6, 0x08, 0x8E);
-    idt_set_gate(7, (uint32_t)isr7, 0x08, 0x8E);
-    idt_set_gate(8, (uint32_t)isr8, 0x08, 0x8E);
-    idt_set_gate(9, (uint32_t)isr9, 0x08, 0x8E);
-    idt_set_gate(10, (uint32_t)isr10, 0x08, 0x8E);
-    idt_set_gate(11, (uint32_t)isr11, 0x08, 0x8E);
-    idt_set_gate(12, (uint32_t)isr12, 0x08, 0x8E);
-    idt_set_gate(13, (uint32_t)isr13, 0x08, 0x8E);
-    idt_set_gate(14, (uint32_t)isr14, 0x08, 0x8E);
-    idt_set_gate(15, (uint32_t)isr15, 0x08, 0x8E);
-    idt_set_gate(16, (uint32_t)isr16, 0x08, 0x8E);
-    idt_set_gate(17, (uint32_t)isr17, 0x08, 0x8E);
-    idt_set_gate(18, (uint32_t)isr18, 0x08, 0x8E);
-    idt_set_gate(19, (uint32_t)isr19, 0x08, 0x8E);
-    idt_set_gate(20, (uint32_t)isr20, 0x08, 0x8E);
-    idt_set_gate(21, (uint32_t)isr21, 0x08, 0x8E);
-    idt_set_gate(22, (uint32_t)isr22, 0x08, 0x8E);
-    idt_set_gate(23, (uint32_t)isr23, 0x08, 0x8E);
-    idt_set_gate(24, (uint32_t)isr24, 0x08, 0x8E);
-    idt_set_gate(25, (uint32_t)isr25, 0x08, 0x8E);
-    idt_set_gate(26, (uint32_t)isr26, 0x08, 0x8E);
-    idt_set_gate(27, (uint32_t)isr27, 0x08, 0x8E);
-    idt_set_gate(28, (uint32_t)isr28, 0x08, 0x8E);
-    idt_set_gate(29, (uint32_t)isr29, 0x08, 0x8E);
-    idt_set_gate(30, (uint32_t)isr30, 0x08, 0x8E);
-    idt_set_gate(31, (uint32_t)isr31, 0x08, 0x8E);
+    // Set each gate in the IDT (ISRs)
+    for (int i = 0; i < 32; i++) {
+        idt_set_gate(i, (uint32_t)isr0 + i, 0x08, 0x8E);
+    }
 
     // IRQ handlers
-    idt_set_gate(32, (uint32_t)irq0, 0x08, 0x8E);
-    idt_set_gate(33, (uint32_t)irq1, 0x08, 0x8E);
-    idt_set_gate(34, (uint32_t)irq2, 0x08, 0x8E);
-    idt_set_gate(35, (uint32_t)irq3, 0x08, 0x8E);
-    idt_set_gate(36, (uint32_t)irq4, 0x08, 0x8E);
-    idt_set_gate(37, (uint32_t)irq5, 0x08, 0x8E);
-    idt_set_gate(38, (uint32_t)irq6, 0x08, 0x8E);
-    idt_set_gate(39, (uint32_t)irq7, 0x08, 0x8E);
-    idt_set_gate(40, (uint32_t)irq8, 0x08, 0x8E);
-    idt_set_gate(41, (uint32_t)irq9, 0x08, 0x8E);
-    idt_set_gate(42, (uint32_t)irq10, 0x08, 0x8E);
-    idt_set_gate(43, (uint32_t)irq11, 0x08, 0x8E);
-    idt_set_gate(44, (uint32_t)irq12, 0x08, 0x8E);
-    idt_set_gate(45, (uint32_t)irq13, 0x08, 0x8E);
-    idt_set_gate(46, (uint32_t)irq14, 0x08, 0x8E);
-    idt_set_gate(47, (uint32_t)irq15, 0x08, 0x8E);
+    for (int i = 32; i < 48; i++) {
+        idt_set_gate(i, (uint32_t)irq0 + i - 32, 0x08, 0x8E);
+    }
 
     // Tell the CPU about our new IDT.
     idt_flush((uint32_t)&idt_ptr);
@@ -149,6 +117,8 @@ void init_idt() {
 
 /**
  * @brief Initialize the descriptor tables (GDT and IDT).
+ *
+ * This function initializes both the Global Descriptor Table (GDT) and the Interrupt Descriptor Table (IDT).
  */
 void init_descriptor_tables() {
     init_gdt();  // Initialize the GDT
@@ -158,6 +128,9 @@ void init_descriptor_tables() {
 /**
  * @brief Common handler for interrupts.
  * 
+ * This function is called whenever an interrupt is triggered. It checks if a handler is registered for the
+ * interrupt and calls the appropriate function. If no handler is registered, it triggers a panic.
+ *
  * @param regs Pointer to the register state when the interrupt occurred.
  */
 void idt_handler(registers_t* regs) {
@@ -172,6 +145,8 @@ void idt_handler(registers_t* regs) {
 /**
  * @brief Register an interrupt handler for a specific interrupt number.
  * 
+ * This function registers a custom interrupt handler for a specific interrupt number.
+ *
  * @param n Interrupt number to associate with the handler.
  * @param h Function pointer to the interrupt handler.
  */

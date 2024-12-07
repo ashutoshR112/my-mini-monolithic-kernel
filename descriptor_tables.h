@@ -3,6 +3,7 @@
 
 #include "system.h"
 
+// IRQ numbers.
 #define IRQ0 32
 #define IRQ1 33
 #define IRQ2 34
@@ -22,20 +23,20 @@
 
 /* 
  * GDT entry structure.
- * Defines the layout of a single entry in the Global Descriptor Table.
+ * Defines the layout of a single entry in the Global Descriptor Table (GDT).
  */
 typedef struct {
     uint16_t limit_low;     // Lower 16 bits of the segment limit.
     uint16_t base_low;      // Lower 16 bits of the base address.
     uint8_t base_middle;    // Middle 8 bits of the base address.
-    uint8_t access;         // Access flags, determines ring level and permissions.
-    uint8_t granularity;    // Granularity and higher bits of the limit.
+    uint8_t access;         // Access flags: defines segment's type, privilege level, etc.
+    uint8_t granularity;    // Granularity and higher 4 bits of the segment limit.
     uint8_t base_high;      // Upper 8 bits of the base address.
 } __attribute__((packed)) gdt_entry_t;
 
 /* 
  * GDT pointer structure.
- * Specifies the address and size of the GDT.
+ * Specifies the address and size of the Global Descriptor Table (GDT).
  */
 typedef struct {
     uint16_t limit;         // Limit of the GDT (size - 1).
@@ -44,19 +45,19 @@ typedef struct {
 
 /* 
  * IDT entry structure.
- * Defines the layout of a single entry in the Interrupt Descriptor Table.
+ * Defines the layout of a single entry in the Interrupt Descriptor Table (IDT).
  */
 typedef struct {
     uint16_t base_lo;       // Lower 16 bits of the handler function's address.
-    uint16_t sel;           // Kernel segment selector.
-    uint8_t always0;        // Always set to zero.
+    uint16_t sel;           // Kernel segment selector (CS).
+    uint8_t always0;        // This field is always set to 0.
     uint8_t flags;          // Flags indicating gate type and privilege level.
     uint16_t base_hi;       // Upper 16 bits of the handler function's address.
 } __attribute__((packed)) idt_entry_t;
 
 /* 
  * IDT pointer structure.
- * Specifies the address and size of the IDT.
+ * Specifies the address and size of the Interrupt Descriptor Table (IDT).
  */
 typedef struct {
     uint16_t limit;         // Limit of the IDT (size - 1).
@@ -71,13 +72,16 @@ typedef struct {
     uint32_t ds;            // Data segment selector.
     uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax; // Pushed by `pusha`.
     uint32_t int_no, err_code; // Interrupt number and error code (if applicable).
-    uint32_t eip, cs, eflags, useresp, ss; // Pushed by the processor.
+    uint32_t eip, cs, eflags, useresp, ss; // Pushed by the processor on interrupt.
 } registers_t;
 
-/* Function pointer type for custom interrupt handlers. */
+/* 
+ * Function pointer type for custom interrupt handlers.
+ * A function of this type will handle interrupts with a `registers_t` argument.
+ */
 typedef void (*interrupt_handler_t)(registers_t *);
 
-/* External assembly functions to load the GDT and IDT. */
+/* External assembly functions to load the GDT and IDT */
 extern void gdt_flush(uint32_t);
 extern void idt_flush(uint32_t);
 
@@ -116,6 +120,7 @@ extern void isr30();
 extern void isr31();
 extern void isr255();
 
+/* IRQ handler function declarations for hardware interrupts (IRQs 0-15). */
 extern void irq0 ();
 extern void irq1 ();
 extern void irq2 ();
@@ -136,10 +141,22 @@ extern void irq15();
 /* Initializes the descriptor tables (GDT and IDT). */
 void init_descriptor_tables(void);
 
-/* Allows us to reg ister an interrupt handler. */
-void register_interrupt_handler (uint8_t n, interrupt_handler_t h);
+/* 
+ * Registers a custom interrupt handler for a specific interrupt number.
+ * 
+ * Parameters:
+ *     n: The interrupt number (IRQ or exception).
+ *     h: The handler function to be registered.
+ */
+void register_interrupt_handler(uint8_t n, interrupt_handler_t h);
 
-/* Common handler for hardware interrupts (IRQs).*/
+/* 
+ * Common handler for hardware interrupts (IRQs).
+ * This is called when an IRQ is triggered.
+ * 
+ * Parameters:
+ *     regs: The registers saved during the interrupt.
+ */
 void irq_handler(registers_t *regs);
 
 #endif /* DESCRIPTOR_TABLES_H */

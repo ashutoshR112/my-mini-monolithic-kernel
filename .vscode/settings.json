@@ -5,6 +5,8 @@
         "screen.h": "c",
         "isr.h": "c",
         "gdt.h": "c",
-        "idt.h": "c"
+        "idt.h": "c",
+        "random": "c",
+        "kmalloc.h": "c"
     }
 }

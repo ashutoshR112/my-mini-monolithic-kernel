@@ -11,6 +11,12 @@
 #define panic(s, ...) \
     _panic("%s:%u in %s: " s, __FILE__, __LINE__, __func__, ##__VA_ARGS__)
 
+#define kassert(msg, cond) (                                       \
+		(cond) ?                                           \
+		(void)0 :                                          \
+		panic("assertion failed: %s (%s)", (msg), (#cond)) \
+)
+
 /**
  * outb
  * Writes a byte to the specified I/O port.
@@ -75,5 +81,16 @@ int strlen(char *src);
  * @param ... Variable arguments to format.
  */
 void printk(const char *fmt, ...);
+
+/**
+ * bzero
+ * Set a block of memory to zero
+ *
+ * @b: Pointer to the memory block to be set to zero.
+ * @len: The number of bytes to set to zero.
+ *
+ * This function does not return a value.
+ */
+void bzero(void *b, size_t len);
 
 #endif /* SYSTEM_H */

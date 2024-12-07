@@ -1,20 +1,32 @@
 #include "system.h"
 #include "descriptor_tables.h"
-#include "timer.h"
+#include "paging.h"
+#include "heap.h"
+#include "kmalloc.h"
 
-int main(struct multiboot *mboot_ptr)
+int main(void *mboot_ptr)
 {
-    printk("TinyOS\n");
-    printk("Starting the kernel...\n");
-
-    printk("- descriptor tables init...\t");
 	init_descriptor_tables();
-	printk(" [OK]\n");
+	init_paging();
 
 
-    init_timer(50);
+    uint32_t* a = kmalloc(8);
 
-    asm volatile("sti");
+uint32_t* b = kmalloc(8);
+uint32_t* c = kmalloc(8);
+
+*a = 100;
+*b = 200;
+
+*c = *a + *b;
+
+printk("VAL = %d\n", *c);
+
+
+kfree(c);
+kfree(b);
+uint32_t* d = kmalloc(12);
+
 
     for(;;);
 

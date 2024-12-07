@@ -133,3 +133,20 @@ void _panic(const char *fmt, ...)
     /* Halt the system indefinitely */
     for (;;);
 }
+
+/**
+ * bzero - Set a block of memory to zero
+ *
+ * This function sets the specified memory block to zero, similar to 
+ * `memset` but specifically for zeroing out memory. It is generally 
+ * used for clearing buffers, structures, or arrays.
+ *
+ * @b: Pointer to the memory block to be set to zero.
+ * @len: The number of bytes to set to zero.
+ *
+ * This function does not return a value.
+ */
+void bzero(void *b, size_t len)
+{
+    (void)memset(b, 0, len);
+}

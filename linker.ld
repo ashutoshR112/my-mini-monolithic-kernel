@@ -26,6 +26,7 @@ SECTIONS
 	   Next we'll put the .text section. */
 	.text BLOCK(4K) : ALIGN(4K)
 	{
+		code = .; _code = .; __code = .;
 		*(.multiboot)
 		*(.text)
 	}
@@ -39,16 +40,19 @@ SECTIONS
 	/* Read-write data (initialized) */
 	.data BLOCK(4K) : ALIGN(4K)
 	{
+		data = .; _data = .; __data = .;
 		*(.data)
 	}
 
 	/* Read-write data (uninitialized) and stack */
 	.bss BLOCK(4K) : ALIGN(4K)
 	{
+		bss = .; _bss = .; __bss = .;
 		*(COMMON)
 		*(.bss)
 	}
 
 	/* The compiler may produce other sections, by default it will put them in
 	   a segment with the same name. Simply add stuff here as needed. */
+	end = .; _end = .; __end = .;
 }

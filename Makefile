@@ -3,7 +3,7 @@ CC = i686-elf-gcc
 AS = i686-elf-as
 CFLAGS = -ffreestanding -O2 -nostdlib
 LDFLAGS = -T linker.ld
-OBJS = boot.o system.o screen.o vsprintf.o main.o
+OBJS = boot.o system.o screen.o vsprintf.o descriptor_tables.o interrupt.o timer.o main.o
 
 # Output binary
 OUTPUT = tinyos.bin

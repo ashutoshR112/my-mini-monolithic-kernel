@@ -5,19 +5,39 @@
 
 #include <stdarg.h>
 
-// Write a byte out to the specified port.
+/**
+ * outb
+ * Writes a byte to the specified I/O port.
+ *
+ * @param port The I/O port to write to.
+ * @param value The byte value to write.
+ */
 void outb(uint16_t port, uint8_t value)
 {
     asm volatile ("outb %1, %0" : : "dN" (port), "a" (value));
 }
 
+/**
+ * inb
+ * Reads a byte from the specified I/O port.
+ *
+ * @param port The I/O port to read from.
+ * @return The byte read from the port.
+ */
 uint8_t inb(uint16_t port)
 {
     uint8_t ret;
-    asm volatile("inb %1, %0" : "=a" (ret) : "dN" (port));
+    asm volatile ("inb %1, %0" : "=a" (ret) : "dN" (port));
     return ret;
 }
 
+/**
+ * inw
+ * Reads a word (2 bytes) from the specified I/O port.
+ *
+ * @param port The I/O port to read from.
+ * @return The word read from the port.
+ */
 uint16_t inw(uint16_t port)
 {
     uint16_t ret;
@@ -25,60 +45,91 @@ uint16_t inw(uint16_t port)
     return ret;
 }
 
-void *
-memset(void *b, int c, size_t len)
+/**
+ * memset
+ * Fills a block of memory with a specified value.
+ *
+ * @param b Pointer to the start of the memory block.
+ * @param c Value to set (converted to unsigned char).
+ * @param len Number of bytes to set.
+ * @return A pointer to the memory block.
+ */
+void *memset(void *b, int c, size_t len)
 {
-	char *bb;
+    char *bb = b;
 
-	for (bb = b; len > 0; len--)
-		*bb++ = c;
+    while (len-- > 0) {
+        *bb++ = (char)c;
+    }
 
-	return (b);
+    return b;
 }
 
+/**
+ * strlen
+ * Calculates the length of a null-terminated string.
+ *
+ * @param src Pointer to the string.
+ * @return The length of the string (excluding the null terminator).
+ */
 int strlen(char *src)
 {
-  int i = 0;
-  while (*src++)
-    i++;
-  return i;
+    int len = 0;
+
+    while (*src++) {
+        len++;
+    }
+
+    return len;
 }
 
-void printk (const char *fmt, ...)
+/**
+ * printk
+ * Outputs a formatted string to the screen, similar to printf.
+ *
+ * @param fmt The format string.
+ * @param ... Variable arguments to format.
+ */
+void printk(const char *fmt, ...)
 {
-	static char buf [1024];
+    static char buf[1024]; /* Buffer to hold the formatted string */
+    va_list args;
+    int len;
 
- 	va_list args;
- 	int i;
- 
- 	va_start(args, fmt);
- 	i = vsprintf(buf,fmt,args);
- 	va_end(args);
+    va_start(args, fmt);
+    len = vsprintf(buf, fmt, args); /* Format the string */
+    va_end(args);
 
- 	buf[i] = '\0';
-
- 	screen_write (buf);
+    buf[len] = '\0'; /* Null-terminate the string */
+    screen_write(buf);
 }
 
+/**
+ * _panic
+ * Halts the system after printing a kernel panic message.
+ *
+ * @param fmt The format string for the panic message.
+ * @param ... Variable arguments to format.
+ */
 void _panic(const char *fmt, ...)
 {
     static char buf[1024];
     va_list args;
 
-    // Print the panic header
+    /* Print the panic header */
     screen_write("\nKernel panic!\n--------------------------\n");
 
-    // Format the custom panic message
+    /* Format the panic message */
     va_start(args, fmt);
     vsprintf(buf, fmt, args);
     va_end(args);
 
-    // Write the formatted message
+    /* Write the formatted panic message */
     screen_write(buf);
 
-    // Print the footer
+    /* Print the footer */
     screen_write("\n--------------------------\n");
 
-    // Halt execution indefinitely
+    /* Halt the system indefinitely */
     for (;;);
 }

@@ -49,9 +49,10 @@ To build the kernel, you need to set up a *cross-compilation toolchain* using *G
 
 Once the kernel is built, it is tested in a *[VirtualBox](https://www.virtualbox.org/)* virtual machine. The virtual machine is configured with:
 
-- **Linux (32-bit)** as the OS type
-- **1GB RAM**
-- A **CD/DVD** drive mounted with the bootable ISO image
+- Linux (32-bit) as the OS type
+- 8MB RAM
+- CPU execution cap: Aproximetely 2%
+- A optical drive mounted with the bootable ISO image
 
 This environment allows you to test the kernel without affecting your host system.
 

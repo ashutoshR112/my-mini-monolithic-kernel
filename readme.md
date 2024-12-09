@@ -15,25 +15,25 @@ This project is a minimal *monolithic kernel* developed from scratch, based on *
 
 The development of the kernel is divided into several key sections, each focusing on a different aspect of operating system functionality. Below is a brief overview of the sections covered in the tutorials:
 
-#### 1. Genesis
+#### 1. [Genesis](https://archive.is/xxLDb)
 The kernel starts by setting up a minimal boot environment. It includes bootloader configuration to transition the system from real mode to protected mode and displays the "Hello, World!" message as the first step.
 
-#### 2. The Screen
+#### 2. [The Screen](https://archive.is/Wg1bR)
 The screen output is handled through the VGA text mode, where characters are written directly to video memory. This provides a way to display messages on the screen and serves as a vital debugging tool during kernel development.
 
-#### 3. The GDT and IDT
+#### 3. [The GDT and IDT](https://archive.is/L3pyA)
 The *Global Descriptor Table (GDT)* and *Interrupt Descriptor Table (IDT)* are set up to manage memory segments and interrupts. The GDT ensures safe memory access, while the IDT handles hardware and software interrupts, such as timer interrupts and exceptions.
 
-#### 4. IRQs and the PIT
+#### 4. [IRQs and the PIT](https://archive.is/8W6ew)
 Interrupts are enabled using the *Programmable Interrupt Controller (PIC)*, and the *Programmable Interval Timer (PIT)* is configured to generate regular time-based interrupts. These interrupts are critical for managing multitasking and responding to hardware events.
 
-#### 5. Paging
+#### 5. [Paging](https://archive.is/8MXkb)
 Paging is introduced to implement virtual memory, where virtual addresses are mapped to physical memory addresses using page tables. This allows the system to manage memory more effectively, providing isolation between processes and enabling the use of larger address spaces.
 
-#### 6. The Heap
+#### 6. [The Heap](https://archive.is/zLFOA)
 A simple memory allocator is implemented to manage dynamic memory allocation. This allows the kernel to allocate and free memory on the heap, enabling the creation of complex data structures and efficient memory management.
 
-#### 7. Multitasking
+#### 7. [Multitasking](https://archive.is/MhBWU)
 Multitasking is implemented by setting up process scheduling and context switching. The kernel can now run multiple processes simultaneously using a basic scheduler.
 
 ### Building the Kernel

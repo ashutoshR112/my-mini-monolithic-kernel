@@ -148,5 +148,5 @@ void _panic(const char *fmt, ...)
  */
 void bzero(void *b, size_t len)
 {
-    (void)memset(b, 0, len);
+    memset(b, 0, len);
 }

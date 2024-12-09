@@ -1,5 +1,5 @@
 
-# Minimal Monolithic Kernel
+# Experimental Monolithic Kernel
 
 This project is a minimal *monolithic kernel* developed from scratch, based on *[JamesM's](https://archive.is/dWJGu)* and *[Bran's Kernel Development](http://www.osdever.net/bkerndev/Docs/title.htm)* tutorials. The goal of this project is to provide a hands-on learning experience in building a kernel, implementing core functionalities such as memory management, multitasking, and hardware interaction. The kernel is designed to be booted using [GRUB](https://www.gnu.org/software/grub/) and tested in a virtual machine (VM) environment.
 
@@ -158,16 +158,19 @@ This environment allows you to test the kernel without affecting your host syste
 ### Running the Kernel
 
 1. Clone the repository:
+
 ```bash
 git  clone  git@github.com:dilshan/mini-monolithic-kernel.git
 cd  mini-monolithic-kernel
 ```
 
 2. Build the kernel and create the bootable ISO (`tinyos.iso`):
+
 ```bash
 make
 ./update_image.sh
 ```
+
 3. Start VirtualBox and create a new virtual machine. Mount the generated *tinyos.iso* file to the VM's CD/DVD drive and start the VM.
 
 4. The kernel should boot, and you should see the output on the screen (e.g., "*Hello, World!*").

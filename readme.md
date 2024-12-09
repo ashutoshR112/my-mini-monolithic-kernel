@@ -51,8 +51,8 @@ Once the kernel is built, it is tested in a *[VirtualBox](https://www.virtualbox
 
 - Linux (32-bit) as the OS type
 - 8MB RAM
-- CPU execution cap: Aproximetely 2%
-- A optical drive mounted with the bootable ISO image
+- CPU execution cap: approximately 2%
+- An optical drive mounted with the bootable ISO image
 
 This environment allows you to test the kernel without affecting your host system.
 

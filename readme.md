@@ -65,10 +65,9 @@ git clone git@github.com:dilshan/mini-monolithic-kernel.git
 cd mini-monolithic-kernel
 ```
 
-2. Build the kernel and create the bootable ISO:
+2. Build the kernel and create the bootable ISO (`tinyos.iso`):
 
 ```bash
-./
 make
 ./update_image.sh
 
@@ -76,4 +75,4 @@ make
 
 3. Start VirtualBox and create a new virtual machine. Mount the generated *tinyos.iso* file to the VM's CD/DVD drive and start the VM.
 
-4. The kernel should boot, and you should see the output on the screen (e.g., "Hello, World!").
+4. The kernel should boot, and you should see the output on the screen (e.g., "*Hello, World!*").

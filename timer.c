@@ -2,6 +2,7 @@
 #include "timer.h"
 #include "descriptor_tables.h"
 #include "screen.h"
+#include "scheduler.h"
 
 // Static variable to keep track of ticks
 static uint32_t tick = 0;
@@ -16,7 +17,7 @@ static uint32_t tick = 0;
  */
 static void timer_callback(registers_t *regs) {
 	tick++;
-	printk("Tick: %d\n", tick);
+  schedule ();
 }
 
 /**

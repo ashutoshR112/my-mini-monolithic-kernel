@@ -7,11 +7,18 @@
 #include "thread.h"
 #include "scheduler.h"
 #include "timer.h"
+#include "lock.h"
+
+spinlock_t lock = SPINLOCK_UNLOCKED;
 
 int fn(void *arg)
 {
-  for(;;) {
-    printk("a");
+for(;;) {
+    int i;
+    spinlock_lock(&lock);
+    for(i = 0; i < 80; i++)
+      printk("a = %d\n", i);
+    spinlock_unlock(&lock);
   }
   return 6;
 }
@@ -22,7 +29,7 @@ int main(void *mboot_ptr)
 	init_paging();
 
     init_timer (20);
-    
+
       asm volatile ("sti");
   init_scheduler (init_threading ());
 
@@ -30,7 +37,11 @@ int main(void *mboot_ptr)
 
   thread_t *t = create_thread(&fn, (void*)0x567, stack);
   for(;;) {
-    printk("b");
+    int i;
+    spinlock_lock(&lock);
+    for(i = 0; i < 80; i++)
+      printk("b = %d\n", i);
+    spinlock_unlock(&lock);
   }
 
     for(;;);

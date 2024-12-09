@@ -40,8 +40,8 @@ Multitasking is implemented by setting up process scheduling and context switchi
 
 To build the kernel, you need to set up a *cross-compilation toolchain* using *GCC* and *Binutils* targeting the *i686-elf* architecture. The process includes:
 
-1. **Building Binutils**: Configure and install *Binutils* with support for the i686-elf architecture.
-2. **Building GCC**: Compile *GCC* with i686-elf support and without standard C libraries.
+1. **Building Binutils**: Configure and install *Binutils* with support for the *i686-elf* architecture.
+2. **Building GCC**: Compile *GCC* with *i686-elf* support and without standard C libraries.
 3. **Assembling Kernel Code**: Use *[NASM](https://www.nasm.us/)* to assemble the kernel's assembly code.
 4. **Creating Bootable ISO**: Use *GRUB* and the `grub-mkrescue` command to create a bootable ISO image with the kernel.
 
